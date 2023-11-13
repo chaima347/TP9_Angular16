@@ -91,6 +91,14 @@
       "madeIn": "Tunisie",
       "categorie": "Accessoires",
       "nouveau": true
+    },
+    {
+      "id": 12,
+      "libelle": "dezjhdjzhdj",
+      "prix": 2000,
+      "madeIn": "tunisia",
+      "categorie": "Accessoires",
+      "nouveau": false
     }
   ]
 }
