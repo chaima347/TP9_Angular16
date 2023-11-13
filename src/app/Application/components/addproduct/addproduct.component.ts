@@ -1,5 +1,5 @@
 import { Component, OnInit } from '@angular/core';
-import { FormBuilder, FormControl, FormGroup } from '@angular/forms';
+import { FormArray, FormBuilder, FormControl, FormGroup } from '@angular/forms';
 import { Category } from '../../enum/category';
 import { ProductService } from '../../services/product.service';
 import { Product } from '../../classes/product';
@@ -11,6 +11,7 @@ import { Product } from '../../classes/product';
 })
 export class AddproductComponent implements OnInit {
   produits: Product[] = [];
+
   lesCategorie = Object.values(Category);
   // produitForm = new FormGroup({
   //   id: new FormControl(0, { nonNullable: true }),
@@ -43,6 +44,7 @@ export class AddproductComponent implements OnInit {
     this.produitForm.get('madeIn')?.setValue('Autres');
     this.produitForm.get('categorie')?.setValue(Category.Fourniture);
   }
+
   ngOnInit(): void {
     this.produitForm = this.fb.nonNullable.group({
       id: [0],
@@ -51,6 +53,7 @@ export class AddproductComponent implements OnInit {
       madeIn: ['tunisia'],
       categorie: [Category.Accessoires],
       nouveau: [true],
+      pointsvente: this.fb.array([]),
     });
 
     this.productservice.getProducts().subscribe({
@@ -64,5 +67,17 @@ export class AddproductComponent implements OnInit {
     this.produitForm
       .get('libelle')
       ?.valueChanges.subscribe((data) => console.log(data));
+  }
+  public get pointsVente() {
+    return this.produitForm.get('pointsvente') as FormArray;
+  }
+  // onAjouter
+  onAjouter() {
+    this.pointsVente.push(new FormControl(''));
+  }
+  // onVider
+  onVider() {
+    this.pointsVente.clear();
+    this.produitForm.reset();
   }
 }

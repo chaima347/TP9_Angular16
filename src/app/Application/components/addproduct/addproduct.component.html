@@ -34,8 +34,18 @@
                 <input   type="checkbox" name="nouv" formControlName="nouveau"> Nouveau
             </label>
         </div>
+        
+        <div formArrayName="pointsVente">
+            <div *ngFor="let p of pointsVente.controls; index as i ">
+            point de vente num {{i+1}}: 
+            <input type="text" [formControlName]="i">
+        </div>
+    </div>
+    <button type="button" (click)="onAjouter()"  class="btn btn-secondary btn-sm">ajouter un point de vente</button> <br>
+
         <input type="submit" value="Ajouter">
         <input type="button" value="Effacer" (click)="onResetForm()" >
+        <input type="button" value="vider" (click)="onVider()">
 
     </form>
     <h3>Listes des Produits </h3>
