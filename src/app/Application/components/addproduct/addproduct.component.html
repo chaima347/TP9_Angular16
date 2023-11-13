@@ -1,41 +1,43 @@
 <div class="container">
     <h3>Ajout d'un produit</h3>
-    <form>
+    <form  [formGroup]="produitForm" (ngSubmit)="onSubmitForm()">
         <div>
             <label> Identifiant du produit </label>
-            <input type="number" name="id" >
+            <input class="form-control"  type="number" name="id"  formControlName="id">
         </div>
         <div>
             <label>Libellé</label>
-            <input type="text" name="lib">
+            <input class="form-control"  type="text" name="lib" formControlName="libelle">
         </div>
         <div>
             <label>Prix</label>
-            <input type="number" name="prix" >
+            <input class="form-control"  type="number" name="prix" formControlName="prix" >
         </div>
 
         <div>
             <label> Made In </label>
             <label>
-                <input type="radio" name="madeIn" value="Tunisie" >Tunisie
+                <input  type="radio" name="madeIn" value="Tunisie"  formControlName="madeIn">Tunisie
             </label>
             <label>
-                <input type="radio" name="madeIn" value="Autre" >Autre
+                <input type="radio" name="madeIn" value="Autre" formControlName="madeIn"  >Autre
             </label>
         </div>
         <div>
             <label>Catégorie</label>
-            <select name="selCategories">
-  
-            </select>
+            <select class="form-select" name="selCategories" formControlName="categorie" >
+        <option *ngFor="let c of lesCategorie" [value]="c"  >{{c}}</option>
+        </select>
         </div>
         <div>
             <label>
-                <input type="checkbox" name="nouv"> Nouveau
+                <input   type="checkbox" name="nouv" formControlName="nouveau"> Nouveau
             </label>
         </div>
         <input type="submit" value="Ajouter">
-        <input type="button" value="Effacer">
+        <input type="button" value="Effacer" (click)="onResetForm()" >
 
     </form>
+    <h3>Listes des Produits </h3>
+    {{produits | json}}
 </div>
