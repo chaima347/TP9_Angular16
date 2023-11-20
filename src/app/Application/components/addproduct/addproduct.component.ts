@@ -1,5 +1,11 @@
 import { Component, OnInit } from '@angular/core';
-import { FormArray, FormBuilder, FormControl, FormGroup } from '@angular/forms';
+import {
+  FormArray,
+  FormBuilder,
+  FormControl,
+  FormGroup,
+  Validators,
+} from '@angular/forms';
 import { Category } from '../../enum/category';
 import { ProductService } from '../../services/product.service';
 import { Product } from '../../classes/product';
@@ -10,74 +16,100 @@ import { Product } from '../../classes/product';
   styleUrls: ['./addproduct.component.css'],
 })
 export class AddproductComponent implements OnInit {
-  produits: Product[] = [];
+  lescategories = Object.values(Category);
+  /*productForm = new FormGroup({
+    id: new FormControl(1, {nonNullable:true}),
+    libelle: new FormControl('', {nonNullable:true}),
+    prix: new FormControl(0, {nonNullable:true}),
+    madeIn:new FormControl('Tunisie', {nonNullable:true}),
+    categorie: new FormControl(Category.Accessoires, {nonNullable:true}),
+    nouveau:new FormControl(false, {nonNullable:true})
+  }) 
+*/
 
-  lesCategorie = Object.values(Category);
-  // produitForm = new FormGroup({
-  //   id: new FormControl(0, { nonNullable: true }),
-  //   libelle: new FormControl('A', { nonNullable: true }),
-  //   prix: new FormControl(10000, { nonNullable: true }),
-  //   madeIn: new FormControl('Tunisie', { nonNullable: true }),
-  //   categorie: new FormControl(Category.Accessoires, { nonNullable: true }),
-  //   nouveau: new FormControl(true, { nonNullable: true }),
-  // });
-  produitForm!: FormGroup;
+  lesProduits!: Product[];
+  productForm!: FormGroup;
   constructor(
-    private productservice: ProductService,
-    private fb: FormBuilder
+    private fb: FormBuilder,
+    private productService: ProductService
   ) {}
-  onSubmitForm() {
-    // console.log(this.produitForm.value);
-    // console.log(this.produitForm.get('id')?.value);
-    // console.log(this.produitForm.controls['libelle']);
-    // console.log(this.produitForm.value['madeIn']);
-    this.productservice
-      .addProduit(this.produitForm.value as Product)
-      .subscribe({
-        next: (product) => {
-          this.produits.push(product);
-        },
-      });
-  }
-  onResetForm() {
-    this.produitForm.reset();
-    this.produitForm.get('madeIn')?.setValue('Autres');
-    this.produitForm.get('categorie')?.setValue(Category.Fourniture);
-  }
 
   ngOnInit(): void {
-    this.produitForm = this.fb.nonNullable.group({
-      id: [0],
-      libelle: [''],
-      prix: [2000],
-      madeIn: ['tunisia'],
+    this.productService
+      .getProducts()
+      .subscribe((data) => (this.lesProduits = data));
+
+    this.productForm = this.fb.nonNullable.group({
+      id: [0, Validators.required],
+      libelle: [
+        'Stylo',
+        [Validators.required, Validators.pattern('[A-Z][a-zA-Z]+$')],
+      ],
+      prix: [0, [Validators.required, Validators.min(0.1)]],
+      madeIn: ['Tunisie'],
       categorie: [Category.Accessoires],
       nouveau: [true],
-      pointsvente: this.fb.array([]),
+      pointsVente: this.fb.array([]),
     });
-
-    this.productservice.getProducts().subscribe({
-      next: (data) => {
-        this.produits = data;
-      },
-    });
-    // code pour set value
-    this.produitForm.get('nouveau')?.setValue(false);
-    // code  de valuechanges
-    this.produitForm
+    this.productForm.get('nouveau')?.setValue(false);
+    this.productForm
       .get('libelle')
       ?.valueChanges.subscribe((data) => console.log(data));
   }
-  public get pointsVente() {
-    return this.produitForm.get('pointsvente') as FormArray;
+
+  onSubmitForm() {
+    console.log(this.productForm.value);
+    console.log(this.productForm.get('id')?.value);
+    console.log(this.productForm.controls['libelle'].value);
+    console.log(this.productForm.value['madeIn']);
+
+    this.productService
+      .addProduit(this.productForm.value)
+      .subscribe((data) => this.lesProduits.push(data));
   }
-  // onAjouter
+
+  onResetForm() {
+    this.productForm.reset({ categorie: Category.Fourniture, madeIn: 'Autre' });
+    this.lesPointsVente.clear();
+  }
+
+  public get lesPointsVente() {
+    return this.productForm.get('pointsVente') as FormArray;
+  }
+
   onAjouter() {
-    this.pointsVente.push(new FormControl(''));
+    this.lesPointsVente.push(this.fb.control('', Validators.minLength(2)));
+    // Autre possibilité
+    // this.lesPointsVente.push(new FormControl(''))
   }
-  // onVider
-  onVider() {
-    this.pointsVente.clear();
-    this.produitForm.reset();
+
+  public get idProduct() {
+    return this.productForm.get('id');
+  }
+
+  public get libProduct() {
+    return this.productForm.get('libelle');
+  }
+
+  public get pointVente() {
+    return this.productForm.get('pointsVente') as FormArray;
+  }
+
+  isInvalidPointVente(i: number) {
+    return (
+      this.pointVente?.controls[i]?.errors?.['minlength'] &&
+      this.pointVente.controls[i].touched
+    );
+  }
+
+  isValidPattern() {
+    return this.libProduct?.errors?.['pattern'] && this.libProduct?.touched;
+  }
+
+  isInvalidRequiredLibele() {
+    return (
+      this.productForm.get('libelle')?.errors?.['required'] &&
+      this.productForm.get('libelle')?.touched
+    );
   }
 }
